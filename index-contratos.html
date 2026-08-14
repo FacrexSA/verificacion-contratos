@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificacion de contrato</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#17242E;
+    --ink-soft:#5B6870;
+    --paper:#EDEFE9;
+    --card:#FFFFFF;
+    --line:#E1E3DC;
+    --vigente:#1F7A4D;
+    --vigente-2:#3FA8A0;
+    --vigente-bg:#E4F1E9;
+    --vencido:#B23A2E;
+    --vencido-2:#8A2B2B;
+    --vencido-bg:#F7E7E5;
+    --sindatos:#B8811F;
+    --sindatos-2:#8C6117;
+    --sindatos-bg:#F6EEDC;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--paper);
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:36px 16px 60px;
+  }
+  .wrap{ width:100%; max-width:420px; }
+  .institucion{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    margin-bottom:20px;
+    text-align:center;
+  }
+  .institucion img{ height:44px; max-width:200px; object-fit:contain; }
+  .institucion .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:32px 26px 24px;
+    opacity:0;
+    transform:translateY(10px);
+    animation:rise 0.5s ease-out forwards;
+  }
+  @keyframes rise{ to{ opacity:1; transform:translateY(0); } }
+
+  .insignia{ display:flex; justify-content:center; margin-bottom:18px; }
+  .insignia svg{ width:88px; height:88px; }
+
+  .cabecera{ text-align:center; margin-bottom:22px; }
+  .nombre{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:22px;
+    line-height:1.25;
+    margin:0 0 10px;
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 14px;
+    border-radius:20px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+  .badge::before{ content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+  .badge.vigente{ background:var(--vigente-bg); color:var(--vigente); }
+  .badge.vencido{ background:var(--vencido-bg); color:var(--vencido); }
+  .badge.sindatos{ background:var(--sindatos-bg); color:var(--sindatos); }
+
+  .seccion{ border-top:1px solid var(--line); padding:18px 0; }
+  .seccion-titulo{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:16px;
+    margin:0 0 4px;
+  }
+  .fila{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:16px;
+    padding:11px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .seccion .fila:last-child{ border-bottom:none; }
+  .fila .label{ font-size:13px; font-weight:600; color:var(--ink); white-space:nowrap; }
+  .fila .valor{ font-size:13.5px; text-align:right; color:var(--ink-soft); }
+  .fila .valor.mono{ font-family:'IBM Plex Mono', monospace; color:var(--ink); }
+
+  .aviso-legal{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-size:11px;
+    line-height:1.5;
+    color:var(--ink-soft);
+    text-align:center;
+  }
+
+  .pie{ text-align:center; margin-top:18px; font-size:12px; color:var(--ink-soft); }
+
+  .estado-msg{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    padding:50px 20px 42px;
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+  .spinner{
+    width:26px; height:26px; border-radius:50%;
+    border:3px solid var(--line);
+    border-top-color:var(--ink-soft);
+    animation:girar 0.8s linear infinite;
+  }
+  @keyframes girar{ to{ transform:rotate(360deg); } }
+  #contenido{ display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="institucion">
+    <!--
+      LOGO: reemplaza "logo-institucion.png" por el nombre real de tu archivo
+      de logo, y sube ese archivo en la MISMA carpeta que este index.html
+      dentro del repositorio de GitHub Pages. Si el archivo no existe o el
+      nombre no coincide exactamente (mayusculas/minusculas incluidas),
+      el logo simplemente no se muestra (no rompe la pagina).
+    -->
+    <img src="logo-institucion.png" alt="Logo de la institucion">
+    <div class="eyebrow">Verificacion de contrato</div>
+  </div>
+
+  <div class="card">
+    <div id="cargando" class="estado-msg">
+      <div class="spinner"></div>
+      <div>Verificando contrato&hellip;</div>
+    </div>
+
+    <div id="error" class="estado-msg" style="display:none"></div>
+
+    <div id="contenido">
+      <div class="insignia" id="insignia"></div>
+
+      <div class="cabecera">
+        <p class="nombre" id="dato-operador"></p>
+        <div id="dato-badge"></div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">Datos del contrato</p>
+        <div class="fila">
+          <span class="label">N&deg; contrato</span>
+          <span class="valor mono" id="dato-numero"></span>
+        </div>
+        <div class="fila">
+          <span class="label">Duraci&oacute;n</span>
+          <span class="valor" id="dato-duracion"></span>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">Vigencia</p>
+        <div class="fila">
+          <span class="label">Fecha inicio</span>
+          <span class="valor mono" id="dato-inicio"></span>
+        </div>
+        <div class="fila">
+          <span class="label">Fecha vencimiento</span>
+          <span class="valor mono" id="dato-vencimiento"></span>
+        </div>
+      </div>
+
+      <p class="aviso-legal">Este sistema certifica la existencia y vigencia del contrato. No constituye copia oficial ni sustituye al documento firmado por las partes.</p>
+    </div>
+  </div>
+
+  <p class="pie" id="pie-hora"></p>
+</div>
+
+<script>
+  // Reemplaza con la URL de tu Apps Script publicado como aplicacion web
+  var API_URL = "https://script.google.com/macros/s/AKfycbwB-GjL0bI56idvl76fhoNzcTrVSszbPgNveNjjldIamNtaw_cT81IWRxbF1Rz8P6rl/exec";
+
+  var COLORES = {
+    vigente: { a: "var(--vigente)", b: "var(--vigente-2)" },
+    vencido: { a: "var(--vencido)", b: "var(--vencido-2)" },
+    sindatos: { a: "var(--sindatos)", b: "var(--sindatos-2)" }
+  };
+
+  var ICONOS_INTERIOR = {
+    vigente: '<path d="M31 45 l10 10 l20 -24" fill="none" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>',
+    vencido: '<path d="M34 34 l24 24 M58 34 l-24 24" fill="none" stroke="white" stroke-width="5" stroke-linecap="round"/>',
+    sindatos: '<circle cx="45" cy="30" r="3.6" fill="white"/><path d="M45 40 v20" stroke="white" stroke-width="5" stroke-linecap="round"/>'
+  };
+
+  function normalizarEstado(estado) {
+    var e = (estado || "").toString().trim().toUpperCase();
+    if (e === "VIGENTE") return "vigente";
+    if (e === "VENCIDO") return "vencido";
+    return "sindatos";
+  }
+
+  function dibujarInsignia(clave) {
+    var c = COLORES[clave];
+    var idGrad = "grad-" + clave;
+    return '<svg viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="' + idGrad + '" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="' + c.a + '"/><stop offset="100%" stop-color="' + c.b + '"/>' +
+      '</linearGradient></defs>' +
+      '<path fill="url(#' + idGrad + ')" d="M45 2 l7 7 9.9 -2.6 4.4 9.2 9.9 2.1 -0.6 10.1 8 6.4 -5.4 8.6 5.4 8.6 -8 6.4 0.6 10.1 -9.9 2.1 -4.4 9.2 -9.9 -2.6 -7 7 -7 -7 -9.9 2.6 -4.4 -9.2 -9.9 -2.1 0.6 -10.1 -8 -6.4 5.4 -8.6 -5.4 -8.6 8 -6.4 -0.6 -10.1 9.9 -2.1 4.4 -9.2 9.9 2.6 z"/>' +
+      ICONOS_INTERIOR[clave] +
+      '</svg>';
+  }
+
+  function mostrarError(mensaje) {
+    document.getElementById("cargando").style.display = "none";
+    var el = document.getElementById("error");
+    el.style.display = "flex";
+    el.innerHTML = "<strong style='color:var(--ink); font-size:16px;'>No se pudo verificar</strong><span>" + mensaje + "</span>";
+  }
+
+  function mostrarContrato(d) {
+    var clave = normalizarEstado(d.estado);
+
+    document.getElementById("cargando").style.display = "none";
+    document.getElementById("contenido").style.display = "block";
+
+    document.getElementById("insignia").innerHTML = dibujarInsignia(clave);
+
+    document.getElementById("dato-operador").textContent = d.operador || "-";
+    document.getElementById("dato-numero").textContent = d.contrato || "-";
+    document.getElementById("dato-duracion").textContent = d.duracion || "-";
+    document.getElementById("dato-inicio").textContent = d.fechaInicio || "-";
+    document.getElementById("dato-vencimiento").textContent = d.fechaVencimiento || "-";
+
+    var etiquetas = { vigente: "Vigente", vencido: "Vencido", sindatos: "Sin datos" };
+    document.getElementById("dato-badge").innerHTML =
+      '<span class="badge ' + clave + '">' + etiquetas[clave] + "</span>";
+
+    document.getElementById("pie-hora").textContent =
+      "Consultado el " + new Date().toLocaleString("es-PE");
+  }
+
+  function iniciar() {
+    var params = new URLSearchParams(window.location.search);
+    var id = params.get("id");
+
+    if (!id) {
+      mostrarError("El enlace no incluye un codigo de verificacion valido.");
+      return;
+    }
+
+    fetch(API_URL + "?id=" + encodeURIComponent(id))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.ok) {
+          mostrarError(d.error || "Contrato no encontrado.");
+          return;
+        }
+        mostrarContrato(d);
+      })
+      .catch(function () {
+        mostrarError("No se pudo conectar con el servidor de verificacion.");
+      });
+  }
+
+  iniciar();
+</script>
+</body>
+</html>
